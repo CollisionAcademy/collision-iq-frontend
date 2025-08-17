@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 
-const API_BASE = import.meta.env.VITE_API_URL; // must be set in Vercel
+// TEMP fallback so we can see replies even if env isn’t injected.
+// After it works, switch to: const API_BASE = import.meta.env.VITE_API_URL;
+const API_BASE = import.meta.env.VITE_API_URL ?? "https://collision-chatbot-172009267767.us-central1.run.app";
 
 export default function App() {
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([]); // [{sender:'You'|'Bot', text:string}]
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [lastStatus, setLastStatus] = useState(null); // debug
+  const [lastStatus, setLastStatus] = useState(null);
 
   async function sendMessage() {
     const msg = input.trim();
@@ -19,17 +21,17 @@ export default function App() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/message`, {
+      const res = await fetch(\`\${API_BASE}/api/message\`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: msg }),
       });
 
-      setLastStatus(`${res.status} ${res.statusText}`);
+      setLastStatus(\`\${res.status} \${res.statusText}\`);
 
       if (!res.ok) {
         const t = await res.text().catch(() => '');
-        throw new Error(`HTTP ${res.status}${t ? ` — ${t}` : ''}`);
+        throw new Error(\`HTTP \${res.status}\${t ? \` — \${t}\` : ''}\`);
       }
 
       const data = await res.json();
@@ -49,9 +51,8 @@ export default function App() {
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>Collision-IQ Chatbot</h1>
+      <h1>Collision-IQ Chatbot — <span style={{color:'#16a34a'}}>DEBUG BUILD ✅</span></h1>
 
-      {/* Debug bar */}
       <div style={{ fontSize: 12, color: '#6b7280', paddingBottom: 8 }}>
         API_BASE: <code>{API_BASE || '(missing VITE_API_URL)'}</code>
         {lastStatus && <> &nbsp;|&nbsp; Last POST: <code>{lastStatus}</code></>}
